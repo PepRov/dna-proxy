@@ -8,17 +8,7 @@
     ],
     "routes": [
         {
-            "src": "/predict",
-            "methods": [
-                "POST"
-            ],
-            "dest": "proxy.py"
-        },
-        {
-            "src": "/",
-            "methods": [
-                "GET"
-            ],
+            "src": "/(.*)",
             "dest": "proxy.py"
         }
     ]
