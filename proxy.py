@@ -1,8 +1,8 @@
 # proxy.py
 from fastapi import FastAPI
 from pydantic import BaseModel
-from gradio_client import Client
 from fastapi.middleware.cors import CORSMiddleware
+import requests
 
 app = FastAPI()
 
@@ -14,9 +14,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Connect to your Hugging Face Space
-client = Client("Ym420/promoter-finder-space")
-
 # Request model
 class SequenceRequest(BaseModel):
     sequence: str
@@ -25,8 +22,17 @@ class SequenceRequest(BaseModel):
 @app.post("/predict")
 def predict(req: SequenceRequest):
     try:
-        # Call the Gradio Space predict function
-        result = client.predict(req.sequence, api_name="/predict_promoter")
-        return {"prediction": result[0], "confidence": result[1]}
+        # Call the Hugging Face Space API directly
+        hf_url = "https://Ym420-promoter-finder-space.hf.space/api/predict/"
+        response = requests.post(hf_url, json={"data": [req.sequence]}, timeout=20)
+
+        data = response.json()
+        output = data["data"][0]  # [prediction, confidence]
+
+        return {
+            "sequence": req.sequence,
+            "prediction": output[0],
+            "confidence": output[1]
+        }
     except Exception as e:
         return {"error": str(e)}
