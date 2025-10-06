@@ -10,7 +10,7 @@
         {
             "src": "/", "methods": ["GET"], 
             "dest": "proxy.py"
-        }
+        },
         {
             "src": "/predict", "methods": ["POST"], 
             "dest": "proxy.py"
