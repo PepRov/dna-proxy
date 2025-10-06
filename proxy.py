@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-import requests
+from gradio_client import Client
 
 app = FastAPI()
 
@@ -11,6 +11,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+client = Client("Ym420/promoter-finder-space", hf_token=None)
 
 class SequenceRequest(BaseModel):
     sequence: str
@@ -22,10 +24,20 @@ def root():
 @app.post("/predict")
 def predict(req: SequenceRequest):
     try:
-        hf_url = "https://Ym420-promoter-finder-space.hf.space/api/predict/"
-        resp = requests.post(hf_url, json={"data": [req.sequence]}, timeout=20)
-        result = resp.json()
-        output = result["data"][0]
-        return {"sequence": req.sequence, "prediction": output[0], "confidence": output[1]}
+        # Call via Gradio Client
+        result = client.predict(req.sequence, api_name="/predict_promoter")
+        
+        # Optional: print for debugging in Vercel logs
+        print("Sequence  :", req.sequence)
+        print("Prediction:", result[0])
+        print("Confidence:", result[1])
+        print("-----------------------")
+        
+        return {
+            "sequence": req.sequence,
+            "prediction": result[0],
+            "confidence": result[1]
+        }
     except Exception as e:
+        print("Error:", str(e))
         return {"error": str(e)}
