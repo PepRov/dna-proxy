@@ -31,9 +31,9 @@ def predict(req: SequenceRequest):
         confidence = result[1]
 
         # ✅ Map to human-readable label
-        if raw_label.lower() == "promoter":
+        if raw_label.lower() == "sigma_70_promoter":
             display_label = "σ⁷⁰ promoter"
-        elif raw_label.lower() == "non-promoter":
+        elif raw_label.lower() == "non_sigma70_concensus_motifs":
             display_label = "no σ⁷⁰ consensus motifs"
         else:
             display_label = raw_label  # fallback in case model returns something else
