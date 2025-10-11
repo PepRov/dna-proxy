@@ -27,16 +27,27 @@ def predict(req: SequenceRequest):
         # Call via Gradio Client
         result = client.predict(req.sequence, api_name="/predict_promoter")
         
+        raw_label = result[0]
+        confidence = result[1]
+
+        # ✅ Map to human-readable label
+        if raw_label.lower() == "promoter":
+            display_label = "σ⁷⁰ promoter"
+        elif raw_label.lower() == "non-promoter":
+            display_label = "non-σ⁷⁰ promoter"
+        else:
+            display_label = raw_label  # fallback in case model returns something else
+        
         # Optional: print for debugging in Vercel logs
         print("Sequence  :", req.sequence)
-        print("Prediction:", result[0])
-        print("Confidence:", result[1])
+        print("Prediction:", display_label)
+        print("Confidence:", confidence)
         print("-----------------------")
         
         return {
             "sequence": req.sequence,
-            "prediction": result[0],
-            "confidence": result[1]
+            "prediction": display_label,
+            "confidence": confidence
         }
     except Exception as e:
         print("Error:", str(e))
