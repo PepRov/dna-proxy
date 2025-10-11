@@ -34,7 +34,7 @@ def predict(req: SequenceRequest):
         if raw_label.lower() == "promoter":
             display_label = "σ⁷⁰ promoter"
         elif raw_label.lower() == "non-promoter":
-            display_label = "non-σ⁷⁰ promoter"
+            display_label = "no σ⁷⁰ signal detected"
         else:
             display_label = raw_label  # fallback in case model returns something else
         
