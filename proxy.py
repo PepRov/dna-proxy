@@ -12,7 +12,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = Client("Ym420/promoter-finder-space", hf_token=None)
+client = Client("Ym420/promoter-classification", hf_token=None)
 
 class SequenceRequest(BaseModel):
     sequence: str
