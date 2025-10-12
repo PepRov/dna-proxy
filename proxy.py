@@ -26,9 +26,10 @@ def predict(req: SequenceRequest):
     try:
         # Call via Gradio Client
         result = client.predict(req.sequence, api_name="/predict_promoter")
-        
-        raw_label = result[0]
-        confidence = result[1]
+       
+        raw_label, confidence = result
+        #raw_label = result[0]
+        #confidence = result[1]
 
         # ✅ Map to human-readable label
         if raw_label.lower() == "promoter":
