@@ -26,8 +26,9 @@ def predict(req: SequenceRequest):
     try:
         # Call via Gradio Client
         result = client.predict(req.sequence, api_name="/predict_promoter")
-       
-        raw_label, confidence = result
+        raw_label = result["label"]
+        confidence = result["confidence"]
+        
         #raw_label = result[0]
         #confidence = result[1]
 
