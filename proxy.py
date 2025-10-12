@@ -1,10 +1,11 @@
-from fastapi import FastAPI
+rom fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from gradio_client import Client
 
 app = FastAPI()
 
+# Enable CORS for all origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -12,7 +13,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = Client("Ym420/promoter-finder-space", hf_token=None)
+# Connect to your Hugging Face Space
+client = Client("Ym420/promoter-classification-space")  # no token needed for public spaces
 
 class SequenceRequest(BaseModel):
     sequence: str
@@ -24,21 +26,25 @@ def root():
 @app.post("/predict")
 def predict(req: SequenceRequest):
     try:
-        # Call via Gradio Client
-        result = client.predict(req.sequence, api_name="/predict_promoter")
+        # Call the Gradio function by name
+        result = client.predict(
+    	req.sequence,
+    	fn_name="predict_promoter"  # matches the function name in app.py
+	)
+
         
         raw_label = result[0]
         confidence = result[1]
 
-        # ✅ Map to human-readable label
+        # Map to human-readable label
         if raw_label.lower() == "promoter":
             display_label = "σ⁷⁰ promoter"
         elif raw_label.lower() == "non-promoter":
             display_label = "no σ⁷⁰ consensus motifs"
         else:
-            display_label = raw_label  # fallback in case model returns something else
+            display_label = raw_label  # fallback
         
-        # Optional: print for debugging in Vercel logs
+        # Debug logs for Vercel
         print("Sequence  :", req.sequence)
         print("Prediction:", display_label)
         print("Confidence:", confidence)
@@ -52,3 +58,4 @@ def predict(req: SequenceRequest):
     except Exception as e:
         print("Error:", str(e))
         return {"error": str(e)}
+
