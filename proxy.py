@@ -12,7 +12,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = Client("Ym420/promoter-finder-space", hf_token=None)
+#client = Client("Ym420/promoter-finder-space", hf_token=None)
+client = Client("Ym420/promoter-classification", hf_token=None)
 
 class SequenceRequest(BaseModel):
     sequence: str
@@ -25,10 +26,15 @@ def root():
 def predict(req: SequenceRequest):
     try:
         # Call via Gradio Client
-        result = client.predict(req.sequence, api_name="/predict_promoter")
-        
-        raw_label = result[0]
-        confidence = result[1]
+        #result = client.predict(req.sequence, api_name="/predict_promoter")
+        #raw_label = result[0]
+        #confidence = result[1]
+
+        # New code for Blocks-based app.py:
+        job = client.submit(req.sequence, api_name="/predict_promoter")
+        raw_label, confidence = job.result()
+
+
 
         # ✅ Map to human-readable label
         if raw_label.lower() == "promoter":
