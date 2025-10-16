@@ -26,6 +26,9 @@ def root():
 @app.post("/predict")
 def predict(req: SequenceRequest):
     try:
+        # --- Debug: print exact sequence received ---
+        print("Received sequence:", repr(sequence))
+
         # Call the HF Space API endpoint
         result = client.predict(
             req.sequence,
