@@ -32,7 +32,7 @@ def predict(req: SequenceRequest):
         # Call the HF Space API endpoint
         result = client.predict(
             req.sequence,
-            api_name="/predict_promoter"  # note the leading slash
+            api_name="/predict_promoter_table"  # note the leading slash
             #api_name="predict_promoter"
         )
 
