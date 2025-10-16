@@ -36,7 +36,8 @@ def predict(req: SequenceRequest):
         )
 
         raw_label = result[0]
-        confidence = result[1]
+        #confidence = result[1]
+        confidence = float(result[1]) if isinstance(result[1], (int, float, str)) else 0.0
 
         # Map to human-readable label
         if raw_label.lower() == "promoter":
