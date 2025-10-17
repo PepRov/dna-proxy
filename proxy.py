@@ -27,7 +27,7 @@ def root():
 def predict(req: SequenceRequest):
     try:
         # --- Debug: print exact sequence received ---
-        print("Received sequence:", repr(sequence))
+        print("✅ Received sequence:", repr(req.sequence))
 
         # Call the HF Space API endpoint
         result = client.predict(
@@ -35,27 +35,29 @@ def predict(req: SequenceRequest):
             api_name="/predict_promoter"  # note the leading slash
         )
 
+        print("✅ Raw result from HF:", result)
+
         raw_label = result[0]
         #confidence = result[1]
-        confidence = float(result[1]) if isinstance(result[1], (int, float, str)) else 0.0
+        #confidence = float(result[1]) if isinstance(result[1], (int, float, str)) else 0.0
 
-        # Map to human-readable label
-        #if raw_label.lower() == "promoter":
-        #    display_label = "σ⁷⁰ promoter"
-        #elif raw_label.lower() == "non-promoter":
-        #    display_label = "no σ⁷⁰ consensus motifs"
-        #else:
-        #    display_label = raw_label  # fallback
-
+        # Expecting tuple like ("Promoter", 0.92)
+        if isinstance(result, (list, tuple)) and len(result) >= 2:
+            label = str(result[0])
+            confidence = float(result[1])
+        else:
+            label = "error"
+            confidence = 0.0
+            
         # Debug logs for Vercel
         print("Sequence  :", req.sequence)
-        print("Prediction:", display_label)
+        print("Prediction:", label)
         print("Confidence:", confidence)
         print("-----------------------")
 
         return {
             "sequence": req.sequence,
-            "prediction": display_label,
+            "prediction": label,
             "confidence": float(confidence)
         }
 
