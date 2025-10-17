@@ -40,12 +40,12 @@ def predict(req: SequenceRequest):
         confidence = float(result[1]) if isinstance(result[1], (int, float, str)) else 0.0
 
         # Map to human-readable label
-        if raw_label.lower() == "promoter":
-            display_label = "σ⁷⁰ promoter"
-        elif raw_label.lower() == "non-promoter":
-            display_label = "no σ⁷⁰ consensus motifs"
-        else:
-            display_label = raw_label  # fallback
+        #if raw_label.lower() == "promoter":
+        #    display_label = "σ⁷⁰ promoter"
+        #elif raw_label.lower() == "non-promoter":
+        #    display_label = "no σ⁷⁰ consensus motifs"
+        #else:
+        #    display_label = raw_label  # fallback
 
         # Debug logs for Vercel
         print("Sequence  :", req.sequence)
