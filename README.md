@@ -2,7 +2,7 @@
 
 DNA Proxy API for Promoter Evaluation
 
-A lightweight Vercel serverless API that relays DNA sequences from an iOS app to a Hugging Face σ⁷⁰ promoter model and returns predictions in real-time. No tokens or permanent storage required.
+A lightweight Vercel serverless API that relays DNA sequences from an iOS app to a Hugging Face promoter model and returns predictions in real-time. No tokens or permanent storage required.
 
 ## Architecture Overview
 
