@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from gradio_client import Client
-#import requests  # For POSTing to Google Sheet
+import requests  # For POSTing to Google Sheet
 
 # --- Step 0: Initialize FastAPI app ---
 
@@ -11,10 +11,10 @@ app = FastAPI()
 # --- Step 0.1: Enable CORS for all origins ---
 
 app.add_middleware(
-CORSMiddleware,
-allow_origins=["*"],
-allow_methods=["*"],
-allow_headers=["*"],
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # --- Step 0.2: Connect to Hugging Face Space ---
@@ -24,13 +24,13 @@ client = Client("Ym420/promoter-classification-space")  # public space, no token
 # --- Step 0.3: Define request model ---
 
 class SequenceRequest(BaseModel):
-sequence: str
+    sequence: str
 
 # --- Step 1: Health check ---
 
 @app.get("/")
 def root():
-return {"message": "Proxy server running"}
+    return {"message": "Proxy server running"}
 
 # --- Step 2: Main prediction endpoint ---
 
@@ -43,7 +43,7 @@ logs sequence to Google Sheet (timestamp, sequence, length).
 """
 try:
 # --- Step 2.1: Debug log the received sequence ---
-print("✅ Received sequence:", repr(req.sequence))
+    print("✅ Received sequence:", repr(req.sequence))
 
 ```
     # --- Step 2.2: Call HF Space API ---
