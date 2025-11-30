@@ -53,6 +53,8 @@ print("✅ Received sequence:", repr(req.sequence))
     )
     print("✅ Raw result from HF:", result)
 
+    raw_label = result[0]
+
     # --- Step 2.3: Parse prediction and confidence ---
     if isinstance(result, (list, tuple)) and len(result) >= 2:
         label = str(result[0])
@@ -86,8 +88,7 @@ print("✅ Received sequence:", repr(req.sequence))
     return {
         "sequence": req.sequence,
         "prediction": label,
-        "confidence": confidence,
-        "sheet_status": sheet_status
+        "confidence": float(confidence)
     }
 
 except Exception as e:
