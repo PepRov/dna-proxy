@@ -64,6 +64,8 @@ def predict(req: SequenceRequest):
         # --- Step 2.4: Prepare payload for Google Sheet ---
         payload = {
             "sequence": req.sequence,
+            "prediction": label,
+            "confidence": confidence,
             "secret_token": SECRET_TOKEN_Promoter
         }
         headers = {"Content-Type": "application/json"}
