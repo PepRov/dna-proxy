@@ -1,8 +1,9 @@
+import os
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from gradio_client import Client
-import requests  # Added to allow POST to Google Sheets
+import requests
 
 # --- Step 0: Initialize FastAPI app ---
 
@@ -17,10 +18,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Step 0.2: Connect to your Hugging Face Space ---
+# --- Step 0.2: Load environment variables ---
+SHEET_URL_Promoter = os.getenv("SHEET_URL_Promoter")
+SECRET_TOKEN_Promoter = os.getenv("SECRET_TOKEN_Promoter")
+
+# --- Step 0.3: Connect to your Hugging Face Space ---
 client = Client("Ym420/promoter-classification-space")  # public space, no token needed
 
-# --- Step 0.3: Define input model from iOS app ---
+# --- Step 0.4: Define input model from iOS app ---
 class SequenceRequest(BaseModel):
     sequence: str
 
@@ -48,28 +53,29 @@ def predict(req: SequenceRequest):
         )
         print("✅ Raw result from HF:", result)
 
-        # --- Step 2.3: Parse prediction and confidence from HF result ---
+        # --- Step 2.3: Parse prediction and confidence ---
         if isinstance(result, (list, tuple)) and len(result) >= 2:
-            label = str(result[0])            # Promoter label
-            confidence = float(result[1])     # Prediction confidence
+            label = str(result[0])
+            confidence = float(result[1])
         else:
             label = "error"
             confidence = 0.0
 
         # --- Step 2.4: Prepare payload for Google Sheet ---
-        google_sheet_webapp_url = "https://script.google.com/macros/s/AKfycbxlilTmFl8MrW7T057oN3tWVYCf3T5iVXgORqCj2G4ub8GO-IfPVWeQFX613MCoXyTx/exec"
-        payload = {"sequence": req.sequence}
+        payload = {
+            "sequence": req.sequence,
+            "secret_token": SECRET_TOKEN_Promoter
+        }
         headers = {"Content-Type": "application/json"}
 
         # --- Step 2.5: POST to Google Sheet ---
         try:
-            r = requests.post(google_sheet_webapp_url, json=payload, headers=headers)
+            r = requests.post(SHEET_URL_Promoter, json=payload, headers=headers)
             print("✅ Sheet response:", r.text)
         except Exception as sheet_err:
-            # Catch any error saving to sheet without stopping HF prediction
             print("❌ Failed to save to Google Sheet:", sheet_err)
 
-        # --- Step 2.6: Debug log prediction info ---
+        # --- Step 2.6: Debug output ---
         print("Sequence  :", req.sequence)
         print("Prediction:", label)
         print("Confidence:", confidence)
@@ -83,7 +89,7 @@ def predict(req: SequenceRequest):
         }
 
     except Exception as e:
-        # --- Step 2.8: Catch-all error if anything goes wrong ---
+        # --- Step 2.8: Catch-all error ---
         print("Error:", str(e))
         return {
             "sequence": req.sequence,
@@ -91,5 +97,4 @@ def predict(req: SequenceRequest):
             "confidence": 0.0,
             "error": str(e)
         }
-
 
