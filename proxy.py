@@ -63,6 +63,7 @@ print("✅ Received sequence:", repr(req.sequence))
         label = "error"
         confidence = 0.0
 
+"""
     # --- Step 2.4: Send sequence to Google Sheet ---
     google_sheet_webapp_url = "https://script.google.com/macros/s/AKfycbxlilTmFl8MrW7T057oN3tWVYCf3T5iVXgORqCj2G4ub8GO-IfPVWeQFX613MCoXyTx/exec"  # replace with deployed Apps Script URL
     payload = {
@@ -77,7 +78,7 @@ print("✅ Received sequence:", repr(req.sequence))
     except Exception as sheet_err:
         sheet_status = f"Failed to save to Google Sheet: {sheet_err}"
         print("❌", sheet_status)
-
+"""
     # --- Step 2.5: Debug log prediction info ---
     print("Sequence  :", req.sequence)
     print("Prediction:", label)
