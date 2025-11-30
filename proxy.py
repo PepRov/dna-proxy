@@ -2,13 +2,13 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from gradio_client import Client
-import requests  # Added to allow POST to Google Sheets
+import requests  # For POSTing to Google Sheet
 
 # --- Step 0: Initialize FastAPI app ---
 
 app = FastAPI()
 
-# --- Step 0.1: Enable CORS so your iOS app can call the API ---
+# --- Step 0.1: Enable CORS for all origins ---
 
 app.add_middleware(
 CORSMiddleware,
@@ -17,82 +17,81 @@ allow_methods=["*"],
 allow_headers=["*"],
 )
 
-# --- Step 0.2: Connect to your Hugging Face Space ---
+# --- Step 0.2: Connect to Hugging Face Space ---
 
 client = Client("Ym420/promoter-classification-space")  # public space, no token needed
 
-# --- Step 0.3: Define input model from iOS app ---
+# --- Step 0.3: Define request model ---
 
 class SequenceRequest(BaseModel):
 sequence: str
 
-# --- Step 1: Simple health check endpoint ---
+# --- Step 1: Health check ---
 
 @app.get("/")
 def root():
 return {"message": "Proxy server running"}
 
-# --- Step 2: Main endpoint for sequence prediction ---
+# --- Step 2: Main prediction endpoint ---
 
 @app.post("/predict")
 def predict(req: SequenceRequest):
 """
-Receives a DNA sequence from the iOS app,
+Receives a DNA sequence from iOS app,
 sends it to HF Space for promoter prediction,
-then logs sequence + prediction to Google Sheet via Apps Script.
+logs sequence to Google Sheet (timestamp, sequence, length).
 """
 try:
 # --- Step 2.1: Debug log the received sequence ---
 print("✅ Received sequence:", repr(req.sequence))
 
 ```
-    # --- Step 2.2: Call HF Space API to predict promoter ---
+    # --- Step 2.2: Call HF Space API ---
     result = client.predict(
         sequence=req.sequence,
         api_name="/predict_promoter"
     )
     print("✅ Raw result from HF:", result)
 
-    # --- Step 2.3: Parse prediction and confidence from HF result ---
+    # --- Step 2.3: Parse prediction and confidence ---
     if isinstance(result, (list, tuple)) and len(result) >= 2:
-        label = str(result[0])      # Promoter label
-        confidence = float(result[1])  # Prediction confidence
+        label = str(result[0])
+        confidence = float(result[1])
     else:
         label = "error"
         confidence = 0.0
 
-    # --- Step 2.4: Prepare payload for Google Sheet ---
-    google_sheet_webapp_url = "https://script.google.com/macros/s/AKfycbxlilTmFl8MrW7T057oN3tWVYCf3T5iVXgORqCj2G4ub8GO-IfPVWeQFX613MCoXyTx/exec"  # <-- Replace with your deployed Apps Script URL
+    # --- Step 2.4: Send sequence to Google Sheet ---
+    google_sheet_webapp_url = "YOUR_APPS_SCRIPT_WEBAPP_URL_HERE"  # replace with deployed Apps Script URL
     payload = {
-        "sequence": req.sequence,
-        "prediction": label,
-        "confidence": confidence
+        "sequence": req.sequence
     }
     headers = {"Content-Type": "application/json"}
 
-    # --- Step 2.5: POST to Google Sheet ---
-    #try:
-    #    r = requests.post(google_sheet_webapp_url, json=payload, headers=headers)
-    #    print("✅ Sheet response:", r.text)
-    #except Exception as sheet_err:
-        # Catch any error saving to sheet without stopping HF prediction
-    #    print("❌ Failed to save to Google Sheet:", sheet_err)
+    try:
+        r = requests.post(google_sheet_webapp_url, json=payload, headers=headers, timeout=5)
+        sheet_status = r.text
+        print("✅ Sheet response:", sheet_status)
+    except Exception as sheet_err:
+        sheet_status = f"Failed to save to Google Sheet: {sheet_err}"
+        print("❌", sheet_status)
 
-    # --- Step 2.6: Debug log prediction info ---
+    # --- Step 2.5: Debug log prediction info ---
     print("Sequence  :", req.sequence)
     print("Prediction:", label)
     print("Confidence:", confidence)
     print("-----------------------")
 
-    # --- Step 2.7: Return prediction to iOS app ---
+    # --- Step 2.6: Return response to iOS app ---
     return {
         "sequence": req.sequence,
         "prediction": label,
-        "confidence": float(confidence)
+        "confidence": confidence,
+        "sheet_status": sheet_status
     }
 
 except Exception as e:
-    # --- Step 2.8: Catch-all error if anything goes wrong ---
+    # --- Step 2.7: Catch-all error ---
     print("Error:", str(e))
     return {
         "sequence": req.sequence,
@@ -103,13 +102,12 @@ except Exception as e:
 ```
 
 """
-=== Summary of Changes & Notes ===
+=== Notes on Changes ===
 
-1. Added `import requests` to enable sending POST requests to Google Sheet.
-2. After obtaining HF prediction, the code sends a POST request to your Apps Script Web App with JSON payload.
-3. All original variables (`req.sequence`, `label`, `confidence`, `result`) and structure are preserved.
-4. Added try/except around Google Sheet POST to prevent crashing if Sheet is unavailable.
-5. Inline comments are now fully consistent with `# --- Step X: Description ---` style for clarity.
-6. Debug `print` statements remain intact for logging in Vercel or local testing.
-7. No changes to function signatures, endpoint paths, or FastAPI structure; fully compatible with existing iOS app.
+1. Preserved original structure, endpoint paths, and variables (`req.sequence`, `label`, `confidence`, `result`).
+2. Google Sheet POST now only sends `sequence` to the simplified Apps Script.
+3. Added `timeout=5` to prevent hanging requests.
+4. `sheet_status` included in response for debugging; ensures server always returns valid JSON.
+5. Inline comments standardized using `# --- Step X: Description ---`.
+6. This version avoids the “invalid response” issue by keeping Apps Script simple and JSON-serializable.
    """
