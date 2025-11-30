@@ -71,12 +71,12 @@ print("✅ Received sequence:", repr(req.sequence))
     headers = {"Content-Type": "application/json"}
 
     # --- Step 2.5: POST to Google Sheet ---
-    try:
-        r = requests.post(google_sheet_webapp_url, json=payload, headers=headers)
-        print("✅ Sheet response:", r.text)
-    except Exception as sheet_err:
+    #try:
+    #    r = requests.post(google_sheet_webapp_url, json=payload, headers=headers)
+    #    print("✅ Sheet response:", r.text)
+    #except Exception as sheet_err:
         # Catch any error saving to sheet without stopping HF prediction
-        print("❌ Failed to save to Google Sheet:", sheet_err)
+    #    print("❌ Failed to save to Google Sheet:", sheet_err)
 
     # --- Step 2.6: Debug log prediction info ---
     print("Sequence  :", req.sequence)
