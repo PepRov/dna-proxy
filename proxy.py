@@ -23,7 +23,9 @@ SHEET_URL_Promoter = os.getenv("SHEET_URL_Promoter")
 SECRET_TOKEN_Promoter = os.getenv("SECRET_TOKEN_Promoter")
 
 # --- Step 0.3: Connect to your Hugging Face Space ---
-client = Client("Ym420/promoter-classification-space")  # public space, no token needed
+# PROMOTER_SPACE = "Ym420/promoter-classification-space"
+PROMOTER_SPACE = os.getenv("PROMOTER_SPACE")
+client = Client(PROMOTER_SPACE)  # public space, no token needed
 
 # --- Step 0.4: Define input model from iOS app ---
 class SequenceRequest(BaseModel):
