@@ -55,16 +55,21 @@ def predict(req: SequenceRequest):
 
         # --- Step 2.3: Parse prediction and confidence ---
         # HF app.py returns a DICT, not list/tuple
-        if isinstance(result, dict):            # <-- UPDATED
-            label = result.get("label", "error")  # <-- UPDATED
+        # --- Step 2.3: Parse prediction and confidence ---
+        # Gradio client may wrap dict in list or tuple
+        if isinstance(result, (list, tuple)) and len(result) > 0:   # <-- UPDATED
+            result = result[0]                                      # <-- UPDATED
 
-            # promoter confidence MUST come from prob_promoter
-            confidence = float(                  # <-- UPDATED
-                result.get("prob_promoter", 0.0)
+        if isinstance(result, dict):                                # <-- UPDATED
+            label = result.get("label", "error")                    # <-- UPDATED
+            confidence = float(
+                result.get("prob_promoter", 0.0)                   # <-- UPDATED
             )
         else:
+            print("❌ Unexpected HF result type:", type(result))    # <-- UPDATED
             label = "error"
             confidence = 0.0
+
 
         # --- Step 2.4: Prepare payload for Google Sheet ---
         payload = {
