@@ -55,9 +55,9 @@ def predict(req: SequenceRequest):
         print("✅ Raw result from HF:", result)
 
         # --- Step 2.3: Parse prediction and confidence ---
-        if isinstance(result, dict):
-            label = result.get("label", "error")
-            confidence = result.get("prob_promoter", 0.0)
+        if isinstance(result, (list, tuple)) and len(result) >= 2:
+            label = str(result[0])
+            confidence = float(result[1])
         else:
             label = "error"
             confidence = 0.0
