@@ -55,12 +55,13 @@ def predict(req: SequenceRequest):
         print("✅ Raw result from HF:", result)
 
         # --- Step 2.3: Parse prediction and confidence ---
-        if isinstance(result, list) and len(result) > 0 and len(result[0]) >= 2:
-            label = str(result[0][0])
-            confidence = float(result[0][1])
+        if isinstance(result, dict):
+            label = result.get("label", "error")
+            confidence = result.get("prob_promoter", 0.0)
         else:
             label = "error"
             confidence = 0.0
+
 
         # --- Step 2.4: Prepare payload for Google Sheet ---
         payload = {
