@@ -49,8 +49,7 @@ def predict(req: SequenceRequest):
         # NOTE: Changed 'inputs' to 'data' per Gradio/HF API requirements
         result = client.predict(
             fn_index=None,  # Use api_name instead
-            api_name="/predict_promoter",
-            data=[{"sequence": req.sequence}]  # ✅ updated here
+            api_name="/predict_promoter"
         )
         print("✅ Raw result from HF:", result)
 
