@@ -22,7 +22,7 @@ SECRET_TOKEN_Promoter = os.getenv("SECRET_TOKEN_Promoter")
 
 # --- Step 0.3: Connect to your Hugging Face Space ---
 PROKBERT_PROMOTER_SPACE = os.getenv("PROKBERT_PROMOTER_SPACE")
-client = Client(PROKBERT_PROMOTER_SPACE)  
+client = Client(PROKBERT_PROMOTER_SPACE)
 
 # --- Step 0.4: Define input model from iOS app ---
 class SequenceRequest(BaseModel):
@@ -46,22 +46,25 @@ def predict(req: SequenceRequest):
         print("✅ Received sequence:", repr(req.sequence))
 
         # --- Step 2.2: Call HF Space API to predict promoter ---
-        # NOTE: Changed 'inputs' to 'data' per Gradio/HF API requirements
         result = client.predict(
-            sequence=req.sequence,  # Use api_name instead
-            api_name="/predict_promoter"
+            sequence=req.sequence,              # unchanged
+            api_name="/predict_promoter"        # unchanged
         )
-        
+
         print("✅ Raw result from HF:", result)
 
         # --- Step 2.3: Parse prediction and confidence ---
-        if isinstance(result, (list, tuple)) and len(result) >= 2:
-            label = str(result[0])
-            confidence = float(result[1])
+        # HF app.py returns a DICT, not list/tuple
+        if isinstance(result, dict):            # <-- UPDATED
+            label = result.get("label", "error")  # <-- UPDATED
+
+            # promoter confidence MUST come from prob_promoter
+            confidence = float(                  # <-- UPDATED
+                result.get("prob_promoter", 0.0)
+            )
         else:
             label = "error"
             confidence = 0.0
-
 
         # --- Step 2.4: Prepare payload for Google Sheet ---
         payload = {
@@ -101,3 +104,4 @@ def predict(req: SequenceRequest):
             "confidence": 0.0,
             "error": str(e)
         }
+
