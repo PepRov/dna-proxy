@@ -21,8 +21,8 @@ SHEET_URL_Promoter = os.getenv("SHEET_URL_Promoter")
 SECRET_TOKEN_Promoter = os.getenv("SECRET_TOKEN_Promoter")
 
 # --- Step 0.3: Connect to your Hugging Face Space ---
-PROMOTER_SPACE = os.getenv("PROKBERT_PROMOTER_SPACE")
-client = Client(PROMOTER_SPACE)  
+PROKBERT_PROMOTER_SPACE = os.getenv("PROKBERT_PROMOTER_SPACE")
+client = Client(PROKBERT_PROMOTER_SPACE)  
 
 # --- Step 0.4: Define input model from iOS app ---
 class SequenceRequest(BaseModel):
