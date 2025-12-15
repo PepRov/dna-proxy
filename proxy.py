@@ -51,10 +51,11 @@ def predict(req: SequenceRequest):
             api_name="/predict_promoter"        # unchanged
         )
 
-        print("✅ Raw result from HF:", result)
+        # 🔍 DEBUG: inspect what Gradio client actually returns
+        print("✅ HF result type:", type(result))    # <-- ADD THIS LINE
+        print("✅ HF raw result:", result)           # <-- OPTIONAL but very useful
 
-        # --- Step 2.3: Parse prediction and confidence ---
-        # HF app.py returns a DICT, not list/tuple
+
         # --- Step 2.3: Parse prediction and confidence ---
         # Gradio client may wrap dict in list or tuple
         if isinstance(result, (list, tuple)) and len(result) > 0:   # <-- UPDATED
