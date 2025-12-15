@@ -57,19 +57,24 @@ def predict(req: SequenceRequest):
 
 
         # --- Step 2.3: Parse prediction and confidence ---
-        # HF Gradio client wraps dict in a tuple
-        if isinstance(result, tuple) and len(result) > 0:   # <-- UPDATED
-            result = result[0]                              # <-- UPDATED
 
-        if isinstance(result, dict):                        # <-- UPDATED
-            label = result.get("label", "error")            # <-- UPDATED
+        # Unwrap Gradio client output (may be nested tuple/list)
+        while isinstance(result, (list, tuple)) and len(result) > 0:  # <-- UPDATED
+            result = result[0]                                        # <-- UPDATED
+
+        print("✅ HF unwrapped result:", result)                       # <-- UPDATED
+        print("✅ HF unwrapped type:", type(result))                   # <-- UPDATED
+
+        if isinstance(result, dict):                                  # <-- UPDATED
+            label = result.get("label", "error")                      # <-- UPDATED
             confidence = float(
-                result.get("prob_promoter", 0.0)           # <-- UPDATED
+                result.get("prob_promoter", 0.0)                     # <-- UPDATED
             )
         else:
-            print("❌ Unexpected HF result:", result)       # <-- UPDATED
+            print("❌ HF result still not dict:", result)              # <-- UPDATED
             label = "error"
             confidence = 0.0
+
 
 
 
