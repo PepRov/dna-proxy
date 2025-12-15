@@ -48,7 +48,7 @@ def predict(req: SequenceRequest):
         # --- Step 2.2: Call HF Space API to predict promoter ---
         result = client.predict(
             sequence=req.sequence,              # unchanged
-            api_name="/predict_promoter"        # unchanged
+            api_name="predict_promoter"        # unchanged
         )
 
         # 🔍 DEBUG: inspect what Gradio client actually returns
