@@ -14,11 +14,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Step 0.2: Load environment variables ---
-#SHEET_URL_Promoter = os.getenv("SHEET_URL_Promoter")
-#SECRET_TOKEN_Promoter = os.getenv("SECRET_TOKEN_Promoter")
-
-
 # Connect to your Hugging Face Space
 client = Client("Ym420/promoter-classification-space")  # public space, no token needed
 
